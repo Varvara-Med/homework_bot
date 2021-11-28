@@ -1,15 +1,27 @@
-...
+import requests
+
+import time
+
+import telegram
+
+import logging
+
+from pprint import pprint
+
+import os
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
-
-PRACTICUM_TOKEN = ...
-TELEGRAM_TOKEN = ...
-TELEGRAM_CHAT_ID = ...
+PRACTICUM_TOKEN = os.getenv('token')
+TELEGRAM_TOKEN = os.getenv('telegram_token')
+TELEGRAM_CHAT_ID = os.getenv('chat_id')
 
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
+PAYLOAD = {'from_date': 0}
 
 
 HOMEWORK_STATUSES = {
@@ -49,19 +61,21 @@ def parse_status(homework):
 
 
 def check_tokens():
-    ...
+    """Проверяет доступность переменных окружения. Если отсутствует какая-то
+    переменная - функция возвращает False."""
+    if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+        return True
+    else:
+        logging.critical('Проверь доступность переменных окружения!')
+        return False
 
 
-def main():
+def main(update, context):
     """Основная логика работы бота."""
-
-    ...
-
+    hw_status = requests.get(ENDPOINT, headers=HEADERS, params=PAYLOAD).json()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
-
-    ...
-
+    pprint(hw_status.json())
     while True:
         try:
             response = ...
