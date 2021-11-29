@@ -14,6 +14,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO)
+
 PRACTICUM_TOKEN = os.getenv('token')
 TELEGRAM_TOKEN = os.getenv('telegram_token')
 TELEGRAM_CHAT_ID = os.getenv('chat_id')
@@ -38,9 +42,14 @@ def send_message(bot, message):
 def get_api_answer(current_timestamp):
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
-
-    ...
-
+    try:
+        api_answer = requests.get(ENDPOINT, headers=HEADERS, params=params)
+    except Exception as error:
+        logging.error(f'Не удалось получить доступ к API {error}', exc_info=True)
+    if api_answer.status_code != 200:
+        api_answer.raise_for_status()
+    else:
+        return api_answer.json()        
 
 def check_response(response):
 
@@ -72,10 +81,8 @@ def check_tokens():
 
 def main(update, context):
     """Основная логика работы бота."""
-    hw_status = requests.get(ENDPOINT, headers=HEADERS, params=PAYLOAD).json()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
-    pprint(hw_status.json())
     while True:
         try:
             response = ...
