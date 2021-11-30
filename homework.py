@@ -58,7 +58,7 @@ def get_api_answer(current_timestamp):
     if api_answer.status_code != 200:
         api_answer.raise_for_status()
     else:
-        print(api_answer.json())
+        return api_answer.json()
 
 
 def check_response(response):
@@ -80,15 +80,19 @@ def check_response(response):
 
 
 def parse_status(homework):
-    homework_name = ...
-    homework_status = ...
-
-    ...
-
-    verdict = ...
-
-    ...
-
+    """Извлекает статус домашки."""
+    try:
+        homework_name = homework.get('homework_name')
+    except KeyError as e:
+        e_message = f'Нет ключа homework_name {e}'
+        logging.error(e_message)
+        raise Exception(e_message)
+    try:
+        homework_status = homework.get('status')
+    except KeyError as e:
+        e_message = f'Нет ключа status {e}'
+        logging.error(e_message)
+    verdict = HOMEWORK_STATUSES[homework_status]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
