@@ -1,13 +1,9 @@
-import requests
-
+import logging
+import os
 import time
 
+import requests
 import telegram
-
-import os
-
-import logging
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,7 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 PRACTICUM_TOKEN = os.getenv('token')
-TELEGRAM_TOKEN = os.getenv('telegram_token')
+TELEGRAM_TOKEN = os.getenv('varvara_token')
 TELEGRAM_CHAT_ID = os.getenv('chat_id')
 
 RETRY_TIME = 600
@@ -36,6 +32,7 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
+    """Отправляем сообщение в терминал и в чат телеграмм."""
     try:
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
         logging.info('Сообщение отправлено')
@@ -45,8 +42,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(current_timestamp):
-    """Делаем запрос к эндпойнту API сервиса и получаем ответ
-    в формате .json."""
+    """Отправляем запрос к API сервиса и получаем ответ в формате .json."""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     try:
@@ -95,8 +91,9 @@ def parse_status(homework):
 
 
 def check_tokens():
-    """Проверяет доступность переменных окружения. Если отсутствует какая-то
-    переменная - функция возвращает False."""
+    """Проверяет доступность переменных окружения.
+    Если отсутствует какая-то переменная - функция возвращает False.
+    """
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
     else:
@@ -107,7 +104,7 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = 1
+    current_timestamp = int(time.time())
     while True:
         try:
             response = get_api_answer(current_timestamp)
@@ -126,6 +123,7 @@ def main():
             logging.exception(f'Сбой в работе программы: {error}')
             send_message(bot, message)
             time.sleep(RETRY_TIME)
+
 
 if __name__ == '__main__':
     main()
