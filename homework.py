@@ -4,8 +4,6 @@ import time
 
 import telegram
 
-from pprint import pprint
-
 import os
 
 import logging
@@ -109,22 +107,25 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
+    current_timestamp = 1
     while True:
         try:
-            response = ...
-
-            ...
-
-            current_timestamp = ...
+            response = get_api_answer(current_timestamp)
+            if not response.get('homeworks'):
+                time.sleep(RETRY_TIME)
+                continue
+            if check_response(response):
+                homework = response.get('homeworks')[0]
+                message = parse_status(homework)
+                send_message(bot, message)
+            current_timestamp = response.get('current_date')
+            logger.info('Домашка не проверена')
             time.sleep(RETRY_TIME)
-
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            ...
+            logging.exception(f'Сбой в работе программы: {error}')
+            send_message(bot, message)
             time.sleep(RETRY_TIME)
-        else:
-            ...
 
 if __name__ == '__main__':
     main()
