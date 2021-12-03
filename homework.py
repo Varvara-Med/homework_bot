@@ -11,6 +11,7 @@ import exceptions
 
 from http import HTTPStatus
 
+
 load_dotenv()
 
 logging.basicConfig(
@@ -23,7 +24,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 handler = RotatingFileHandler('my_logger.log',
-                              maxBytes=50000000, backupCount=5)
+                              maxBytes=50000000,
+                              backupCount=5,
+                              encoding='utf-8'
+                              )
 logger.addHandler(handler)
 formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -42,14 +46,11 @@ HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 PAYLOAD = {'from_date': 0}
 
 
-HOMEWORK_STATUSES = {
+HOMEWORK_VERDICT = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
     'reviewing': 'Работа взята на проверку ревьюером.',
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
-# Максим, привет! Эти STATUSES были даны изначально. В принципе,
-# можно и поменять. Я поняла твою логику размышлений. Действительно
-# это уже вердикт, в итоге.
 
 
 def send_message(bot, message):
@@ -73,8 +74,7 @@ def get_api_answer(current_timestamp):
         raise exceptions.NegativeApiAccess('Не удалось получить доступ к API')
     if api_answer.status_code != HTTPStatus.OK:
         raise exceptions.NegativeApiStatus('Код ответа не 200')
-    else:
-        return api_answer.json()
+    return api_answer.json()
 
 
 def check_response(response):
@@ -110,7 +110,10 @@ def parse_status(homework):
         e_message = f'Нет ключа status {e}'
         logger.error(e_message)
         raise KeyError(e_message)
-    verdict = HOMEWORK_STATUSES[homework_status]
+    verdict = HOMEWORK_VERDICT[homework_status]
+    if verdict is None:
+        verdict = 'Пришёл несуществующий статус.'
+        logger.error(verdict)
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
@@ -129,13 +132,16 @@ def main():
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     # current_timestamp = int(time.time())
     current_timestamp = 1
+    last_response = 0
     while True:
         try:
             response = get_api_answer(current_timestamp)
             if not response.get('homeworks'):
                 time.sleep(RETRY_TIME)
                 continue
-            if check_response(response):
+            check_response(response)
+            if response != last_response:
+                last_response = response
                 homework = response.get('homeworks')[0]
                 message = parse_status(homework)
                 send_message(bot, message)
