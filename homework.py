@@ -110,7 +110,7 @@ def parse_status(homework):
         e_message = f'Нет ключа status {e}'
         logger.error(e_message)
         raise KeyError(e_message)
-    verdict = HOMEWORK_VERDICT[homework_status]
+    verdict = HOMEWORK_VERDICT.get('homework_status')
     if verdict is None:
         verdict = 'Пришёл несуществующий статус.'
         logger.error(verdict)
@@ -130,8 +130,8 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    # current_timestamp = int(time.time())
-    current_timestamp = 1
+    current_timestamp = int(time.time())
+    # current_timestamp = 1
     last_response = 0
     while True:
         try:
