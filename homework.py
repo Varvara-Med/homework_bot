@@ -117,7 +117,7 @@ def parse_status(homework):
         logger.error(e_message)
         raise KeyError(e_message)
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
-
+# что-то я расслабилась уже. Оказалось рановато :)
 
 def check_tokens():
     """Проверяет доступность переменных окружения.
