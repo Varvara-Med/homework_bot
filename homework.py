@@ -110,10 +110,12 @@ def parse_status(homework):
         e_message = f'Нет ключа status {e}'
         logger.error(e_message)
         raise KeyError(e_message)
-    verdict = HOMEWORK_VERDICT[homework_status]
-    if verdict is KeyError:
-        verdict = 'Пришёл несуществующий статус.'
-        logger.error(verdict)
+    try:
+        verdict = HOMEWORK_VERDICT[homework_status]
+    except KeyError as e:
+        e_message = f'Пришёл несуществующий статус {e}.'
+        logger.error(e_message)
+        raise KeyError(e_message)
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
