@@ -35,3 +35,9 @@ python3 manage.py migrate
 python3 manage.py runserver
 ```
 - Для остановки  dev-сервера нажми Ctrl+C или Ctrl + Break
+
+### Автор
+Варвара
+> e-mail: upgradeki@yandex.ru
+
+> telegram: @Varvara_Medok
